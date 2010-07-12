@@ -1,0 +1,713 @@
+<?xml version="1.0" encoding="iso-8859-1"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN"
+               "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml"
+lang="en" xml:lang="en">
+<head>
+<title>Rick Dillon's Emacs Initialization File</title>
+<meta http-equiv="Content-Type" content="text/html;charset=iso-8859-1"/>
+<meta name="generator" content="Org-mode"/>
+<meta name="generated" content="2010-07-10 Sat"/>
+<meta name="author" content="R. P. Dillon"/>
+<meta name="description" content=""/>
+<meta name="keywords" content=""/>
+<style type="text/css">
+ <!--/*--><![CDATA[/*><!--*/
+  html { font-family: Times, serif; font-size: 12pt; }
+  .title  { text-align: center; }
+  .todo   { color: red; }
+  .done   { color: green; }
+  .tag    { background-color: #add8e6; font-weight:normal }
+  .target { }
+  .timestamp { color: #bebebe; }
+  .timestamp-kwd { color: #5f9ea0; }
+  p.verse { margin-left: 3% }
+  pre {
+	border: 1pt solid #AEBDCC;
+	background-color: #F3F5F7;
+	padding: 5pt;
+	font-family: courier, monospace;
+        font-size: 90%;
+        overflow:auto;
+  }
+  table { border-collapse: collapse; }
+  td, th { vertical-align: top; }
+  dt { font-weight: bold; }
+  div.figure { padding: 0.5em; }
+  div.figure p { text-align: center; }
+  textarea { overflow-x: auto; }
+  .linenr { font-size:smaller }
+  .code-highlighted {background-color:#ffff00;}
+  .org-info-js_info-navigation { border-style:none; }
+  #org-info-js_console-label { font-size:10px; font-weight:bold;
+                               white-space:nowrap; }
+  .org-info-js_search-highlight {background-color:#ffff00; color:#000000;
+                                 font-weight:bold; }
+  /*]]>*/-->
+</style>
+<script type="text/javascript">
+<!--/*--><![CDATA[/*><!--*/
+ function CodeHighlightOn(elem, id)
+ {
+   var target = document.getElementById(id);
+   if(null != target) {
+     elem.cacheClassElem = elem.className;
+     elem.cacheClassTarget = target.className;
+     target.className = "code-highlighted";
+     elem.className   = "code-highlighted";
+   }
+ }
+ function CodeHighlightOff(elem, id)
+ {
+   var target = document.getElementById(id);
+   if(elem.cacheClassElem)
+     elem.className = elem.cacheClassElem;
+   if(elem.cacheClassTarget)
+     target.className = elem.cacheClassTarget;
+ }
+/*]]>*///-->
+</script>
+</head>
+<body>
+<div id="content">
+
+<h1 class="title">Rick Dillon's Emacs Initialization File</h1>
+
+
+<div id="table-of-contents">
+<h2>Table of Contents</h2>
+<div id="text-table-of-contents">
+<ul>
+<li><a href="#sec-1">1 Custom Functions </a>
+<ul>
+<li><a href="#sec-1_1">1.1 Platform-independent Path Costruction </a></li>
+<li><a href="#sec-1_2">1.2 Multi-buffer Search </a></li>
+<li><a href="#sec-1_3">1.3 Flyspell Convenience Function </a></li>
+</ul>
+</li>
+<li><a href="#load-path-setup">2 Load Path Setup </a>
+<ul>
+<li><a href="#sec-2_1">2.1 ELPA Initialization </a></li>
+</ul>
+</li>
+<li><a href="#sec-3">3 Editor Behavior </a>
+<ul>
+<li><a href="#sec-3_1">3.1 Prevent backups from littering the file system </a></li>
+<li><a href="#sec-3_2">3.2 Region selection </a></li>
+<li><a href="#sec-3_3">3.3 Clipboard Behavior </a></li>
+<li><a href="#sec-3_4">3.4 Meta Key Modifications </a></li>
+<li><a href="#sec-3_5">3.5 Syntax Highlighting </a></li>
+<li><a href="#sec-3_6">3.6 Tabs Handling </a></li>
+<li><a href="#sec-3_7">3.7 Minibuffer Handling </a></li>
+<li><a href="#sec-3_8">3.8 Modeline Information </a></li>
+<li><a href="#sec-3_9">3.9 Scrolling </a></li>
+<li><a href="#sec-3_10">3.10 Paretheses </a></li>
+<li><a href="#sec-3_11">3.11 Line Wrapping </a></li>
+<li><a href="#sec-3_12">3.12 Emacs Server </a></li>
+<li><a href="#sec-3_13">3.13 Applications </a>
+<ul>
+<li><a href="#sec-3_13_1">3.13.1 Sunrise Commander </a></li>
+</ul>
+</li>
+<li><a href="#sec-3_14">3.14 Modes </a>
+<ul>
+<li><a href="#sec-3_14_1">3.14.1 ANSI Color in Terminals </a></li>
+<li><a href="#sec-3_14_2">3.14.2 <code>recentf</code> Setup </a></li>
+<li><a href="#sec-3_14_3">3.14.3 Org-Remember </a></li>
+</ul>
+</li>
+<li><a href="#sec-3_15">3.15 Accelerators </a></li>
+<li><a href="#sec-3_16">3.16 GUI Settings </a></li>
+<li><a href="#sec-3_17">3.17 End of File Newlines </a></li>
+<li><a href="#sec-3_18">3.18 Advanced Commands </a></li>
+<li><a href="#sec-3_19">3.19 Color Themes </a></li>
+</ul>
+</li>
+<li><a href="#sec-4">4 Location-specific Settings </a></li>
+</ul>
+</div>
+</div>
+
+<div id="outline-container-1" class="outline-2">
+<h2 id="sec-1"><span class="section-number-2">1</span> Custom Functions </h2>
+<div class="outline-text-2" id="text-1">
+
+
+</div>
+
+<div id="outline-container-1_1" class="outline-3">
+<h3 id="sec-1_1"><span class="section-number-3">1.1</span> Platform-independent Path Costruction </h3>
+<div class="outline-text-3" id="text-1_1">
+
+<p>If you have a collection of code that you want to load at startup, you tend to want to modify the <code>load-path</code> variable by adding paths of your own.  This can be cumbersome, so this function automatically chains together the path-handling calls to reduce unwieldy calls later.  You simply call it with the path elements you want to construct, in order:
+</p>
+
+
+<pre class="src src-emacs-lisp">(construct-path <span style="color: #ffa07a;">"~"</span> <span style="color: #ffa07a;">"foo"</span> <span style="color: #ffa07a;">"bar"</span> <span style="color: #ffa07a;">"baz.txt"</span>)
+</pre>
+
+
+<p>
+You can see more of how it's used in the section on <a href="#load-path-setup">Load Path Setup</a>
+</p>
+
+
+<pre class="src src-emacs-lisp">(<span style="color: #00ffff;">defun</span> <span style="color: #87cefa;">construct-path</span> (<span style="color: #98fb98;">&amp;rest</span> path-elements)
+  (<span style="color: #00ffff;">defun</span> <span style="color: #87cefa;">inner</span> (elements)
+    (print (car elements))
+    (<span style="color: #00ffff;">if</span> (eq (cdr elements) nil)
+        (expand-file-name (car elements))
+      (expand-file-name (car elements) (inner (cdr elements)))))
+  (inner (reverse path-elements)))
+</pre>
+
+
+
+</div>
+
+</div>
+
+<div id="outline-container-1_2" class="outline-3">
+<h3 id="sec-1_2"><span class="section-number-3">1.2</span> Multi-buffer Search </h3>
+<div class="outline-text-3" id="text-1_2">
+
+<p>Sometimes you want to execute a search across all your open buffers, for example when you have a collection of related files and need to find a refernce to a particular word or phrase (writing) or variable or function (programming).  This is an interactive function that does exactly that.
+</p>
+
+
+<pre class="src src-emacs-lisp">(<span style="color: #00ffff;">defun</span> <span style="color: #87cefa;">search</span> (regexp)
+  <span style="color: #ffa07a;">"Search all buffers for a regexp."</span>
+  (interactive <span style="color: #ffa07a;">"sRegexp to search for: "</span>)
+  (multi-occur-in-matching-buffers <span style="color: #ffa07a;">".*"</span> regexp))
+</pre>
+
+
+</div>
+
+</div>
+
+<div id="outline-container-1_3" class="outline-3">
+<h3 id="sec-1_3"><span class="section-number-3">1.3</span> Flyspell Convenience Function </h3>
+<div class="outline-text-3" id="text-1_3">
+
+<p>When <code>flyspell-mode</code> is activated, it doesn't go back and check the entire current buffer for spelling errors.  This is a helper function that turns on flyspell, and goes back and checks the current buffer for spelling errors after doing so.
+</p>
+
+
+<pre class="src src-emacs-lisp">(<span style="color: #00ffff;">defun</span> <span style="color: #87cefa;">flyspell-on</span> ()
+  (interactive)
+  (flyspell-mode 1)
+  (flyspell-buffer))
+</pre>
+
+
+</div>
+</div>
+
+</div>
+
+<div id="outline-container-load-path-setup" class="outline-2">
+<h2 id="load-path-setup"><a name="sec-2" id="sec-2"></a><span class="section-number-2">2</span> Load Path Setup </h2>
+<div class="outline-text-2" id="text-load-path-setup">
+
+<p>This file makes use of a variety of modes and code that are included under the <code>src</code> sub-directory of my <code>.emacs.d</code> directory.  This code adds those directories so the rest of the file can be executed smoothly.
+</p>
+
+
+
+<pre class="src src-emacs-lisp">(add-to-list 'load-path (construct-path (file-name-directory (or (buffer-file-name) load-file-name)) <span style="color: #ffa07a;">"src"</span> <span style="color: #ffa07a;">"org-mode"</span> <span style="color: #ffa07a;">"lisp"</span>))
+(add-to-list 'load-path (construct-path (file-name-directory (or (buffer-file-name) load-file-name)) <span style="color: #ffa07a;">"src"</span> <span style="color: #ffa07a;">"org-mode"</span> <span style="color: #ffa07a;">"contrb"</span> <span style="color: #ffa07a;">"lisp"</span>))
+(add-to-list 'load-path (construct-path (file-name-directory (or (buffer-file-name) load-file-name)) <span style="color: #ffa07a;">"src"</span>))
+</pre>
+
+
+
+</div>
+
+<div id="outline-container-2_1" class="outline-3">
+<h3 id="sec-2_1"><span class="section-number-3">2.1</span> ELPA Initialization </h3>
+<div class="outline-text-3" id="text-2_1">
+
+<p>ELPA is a package manager for Emacs, and I've loaded a variety of add-on packages through ELPA.  Some of them, like <code>idle-require</code> I make use of in this file, so rather than initialize ELPA at the end of the file, I initialize it here, before I set up everything else.
+</p>
+
+
+<pre class="src src-emacs-lisp">(<span style="color: #00ffff;">when</span> (load (construct-path <span style="color: #ffa07a;">"~"</span> <span style="color: #ffa07a;">".emacs.d"</span> <span style="color: #ffa07a;">"elpa"</span> <span style="color: #ffa07a;">"package.el"</span>)) (package-initialize))
+</pre>
+
+
+</div>
+</div>
+
+</div>
+
+<div id="outline-container-3" class="outline-2">
+<h2 id="sec-3"><span class="section-number-2">3</span> Editor Behavior </h2>
+<div class="outline-text-2" id="text-3">
+
+
+</div>
+
+<div id="outline-container-3_1" class="outline-3">
+<h3 id="sec-3_1"><span class="section-number-3">3.1</span> Prevent backups from littering the file system </h3>
+<div class="outline-text-3" id="text-3_1">
+
+<p>By default, Emacs provides fairly robust backup file (files that end with a ~) support, but it leaves those files in the same directories alongside the originals.  This is a customization that gathers all the backups into one spot, so you can find them in one place, and don't have to worry about, e.g. your version control system commiting them by accident.
+</p>
+
+
+<pre class="src src-emacs-lisp">(setq backup-directory-alist `((<span style="color: #ffa07a;">"."</span> . ,(construct-path <span style="color: #ffa07a;">"~"</span> <span style="color: #ffa07a;">"emacsbackup"</span>))))
+</pre>
+
+
+
+</div>
+
+</div>
+
+<div id="outline-container-3_2" class="outline-3">
+<h3 id="sec-3_2"><span class="section-number-3">3.2</span> Region selection </h3>
+<div class="outline-text-3" id="text-3_2">
+
+<p>The newer versions of Emacs (version 23+), turn on a more common but less powerful mode for text selection called <code>transient-mark-mode</code>, which only supplies an active region when text is selected.  This disables that mode in favor of the traditional Emacs behavior.
+</p>
+
+
+<pre class="src src-emacs-lisp">(transient-mark-mode 0)
+</pre>
+
+
+
+</div>
+
+</div>
+
+<div id="outline-container-3_3" class="outline-3">
+<h3 id="sec-3_3"><span class="section-number-3">3.3</span> Clipboard Behavior </h3>
+<div class="outline-text-3" id="text-3_3">
+
+<p>Emacs maintains a kill-ring independent of the system clipboard.  This can be useful or annoying, and I tend to find it annoying.  This variable combines the two clipboards to they interoperate.
+</p>
+
+
+<pre class="src src-emacs-lisp">(setq-default x-select-enable-clipboard t)
+</pre>
+
+
+</div>
+
+</div>
+
+<div id="outline-container-3_4" class="outline-3">
+<h3 id="sec-3_4"><span class="section-number-3">3.4</span> Meta Key Modifications </h3>
+<div class="outline-text-3" id="text-3_4">
+
+<p>On many platform/keyboard combinations, keys are not placed conveniently for use in Emacs.  Specifically, the control key is often placed in the lower left corner of the keyboard, which can cause strain.  This is usually rebound to a more convenient location (like the key that most modern keyboards assign to Caps Lock).  The other key that sometimes causes issues is the Meta key, and that is what we address here.  If you're using Emacs on Apple hardware with an Apple keyboard, for example, the "Command" key should be treated as Meta.  This can be effected with:
+</p>
+
+
+<pre class="src src-emacs-lisp">(setq ns-command-modifier (quote meta))
+</pre>
+
+
+<p>
+It's worth noting that this variable doesn't even exist on non-Apple platforms, and may or may not be present in alternative builds like Carbon Emacs and Aquamacs, which have their own methods for handling Meta key behavior on Apple platforms.
+</p>
+<p>
+Similar techniques can be used to assign Meta on Linux, as well:
+</p>
+
+
+<pre class="src src-emacs-lisp">(setq x-alt-keysym 'meta)
+(setq x-super-keysym 'meta)
+</pre>
+
+
+</div>
+
+</div>
+
+<div id="outline-container-3_5" class="outline-3">
+<h3 id="sec-3_5"><span class="section-number-3">3.5</span> Syntax Highlighting </h3>
+<div class="outline-text-3" id="text-3_5">
+
+<p>Emacs doesn't turn on syntax highlighting by default.  This enables it globally (across all buffers).
+</p>
+
+
+<pre class="src src-emacs-lisp">(global-font-lock-mode t)
+</pre>
+
+
+
+</div>
+
+</div>
+
+<div id="outline-container-3_6" class="outline-3">
+<h3 id="sec-3_6"><span class="section-number-3">3.6</span> Tabs Handling </h3>
+<div class="outline-text-3" id="text-3_6">
+
+<p>This tends to be a relgious issue, but I prefer it when tabs are never used in any of my work.  This tells Emacs to indent with spaces rather than tabs, and set a tab width to be four spaces.
+</p>
+
+
+<pre class="src src-emacs-lisp">(setq-default indent-tabs-mode nil)
+(setq-default tab-width 4)
+</pre>
+
+
+
+</div>
+
+</div>
+
+<div id="outline-container-3_7" class="outline-3">
+<h3 id="sec-3_7"><span class="section-number-3">3.7</span> Minibuffer Handling </h3>
+<div class="outline-text-3" id="text-3_7">
+
+<p>There are a variety of helper modes that improve the file finding and buffer switching functionality.  I used to use <code>iswitchb-mode</code>, which affects only buffer switching, but now use the more comprehensive <code>ido-mode</code>, which affects file finding as well.
+</p>
+
+
+<pre class="src src-emacs-lisp">(ido-mode t)
+</pre>
+
+
+
+</div>
+
+</div>
+
+<div id="outline-container-3_8" class="outline-3">
+<h3 id="sec-3_8"><span class="section-number-3">3.8</span> Modeline Information </h3>
+<div class="outline-text-3" id="text-3_8">
+
+<p>By default, the modeline doesn't contain a lot of information.  These commands add time, CPU load, battery information and column number information for the current point position.
+</p>
+
+
+<pre class="src src-emacs-lisp">(display-time-mode t)
+(column-number-mode t)
+(display-battery-mode t)
+</pre>
+
+
+
+</div>
+
+</div>
+
+<div id="outline-container-3_9" class="outline-3">
+<h3 id="sec-3_9"><span class="section-number-3">3.9</span> Scrolling </h3>
+<div class="outline-text-3" id="text-3_9">
+
+<p>One of the best changes to Emacs' default behavior, this modifies the scrolling behavior to maintain better continuity.  The default behavior is jumpy and disorienting for me.  Most other editors are better, but only scroll when you hit the bottom or top of the screen.  This modification makes Emacs behave like other editors, but places a 10-line margin at the top of the bottom of the screen so when the screen begins scrolling, you have some context surrounding the point.
+</p>
+
+
+<pre class="src src-emacs-lisp">(setq scroll-conservatively 10)
+(setq scroll-margin 7)
+(setq inhibit-startup-screen 1)
+</pre>
+
+
+</div>
+
+</div>
+
+<div id="outline-container-3_10" class="outline-3">
+<h3 id="sec-3_10"><span class="section-number-3">3.10</span> Paretheses </h3>
+<div class="outline-text-3" id="text-3_10">
+
+<p>If the cursor is on a parenthesis, bracket or brace, this mode highlights the corresponding parenthesis, bracket or brace.  Very handy in a lot of situations, most notably when programming in lisp.
+</p>
+
+
+<pre class="src src-emacs-lisp">(show-paren-mode t)
+</pre>
+
+
+</div>
+
+</div>
+
+<div id="outline-container-3_11" class="outline-3">
+<h3 id="sec-3_11"><span class="section-number-3">3.11</span> Line Wrapping </h3>
+<div class="outline-text-3" id="text-3_11">
+
+<p>There are lots of ways to handle line wrapping, but this mode is the best I've found, by far.  It does not insert hard newlines into your document, and behaves correctly <i>vis a vis</i> line numbers.
+</p>
+
+
+<pre class="src src-emacs-lisp">(global-visual-line-mode 1)
+</pre>
+
+
+</div>
+
+</div>
+
+<div id="outline-container-3_12" class="outline-3">
+<h3 id="sec-3_12"><span class="section-number-3">3.12</span> Emacs Server </h3>
+<div class="outline-text-3" id="text-3_12">
+
+<p>The idiomatic way to use Emacs is to keep one Emacs session running, and open new files in that session.  This can be inconvenient when you're in another application and want to open a file it is pointing to.  Often, such applications support the "Open with&hellip;" command, but you'd need a way to tell them to open the file with the currently running Emacs session.  The way to do this is to have your Emacs session run in server mode (which is the piece of code below), and use the command <code>emacsclient</code> to open the file; <code>emacsclient</code> will take care of handing the file off the current Emacs session.
+</p>
+
+
+<pre class="src src-emacs-lisp">(server-start)
+</pre>
+
+
+</div>
+
+</div>
+
+<div id="outline-container-3_13" class="outline-3">
+<h3 id="sec-3_13"><span class="section-number-3">3.13</span> Applications </h3>
+<div class="outline-text-3" id="text-3_13">
+
+<p>I don't add on too many non-default applications, but sunrise commander is so good that I couldn't resist.  It is on OFM (orthodox file manager) that is built as a front-end to dired-mode that I find quite useful for its dual-pane functionality.
+</p>
+</div>
+
+<div id="outline-container-3_13_1" class="outline-4">
+<h4 id="sec-3_13_1"><span class="section-number-4">3.13.1</span> Sunrise Commander </h4>
+<div class="outline-text-4" id="text-3_13_1">
+
+
+
+
+<pre class="src src-emacs-lisp">(<span style="color: #00ffff;">require</span> '<span style="color: #7fffd4;">sunrise-commander</span>)
+</pre>
+
+
+</div>
+</div>
+
+</div>
+
+<div id="outline-container-3_14" class="outline-3">
+<h3 id="sec-3_14"><span class="section-number-3">3.14</span> Modes </h3>
+<div class="outline-text-3" id="text-3_14">
+
+<p>There a variety of modes that I'd like to be available during my editing session, but I don't want to sacrifice startup speed to have them, since I won't be using them immediately, usually.  <code>idle-require</code> tells emacs to load them when convenient, rather than hold up the initialization process loading them.
+</p>
+
+
+<pre class="src src-emacs-lisp">(idle-require 'htmlize)
+(idle-require 'clojure-mode)
+(idle-require 'remember)
+(idle-require 'org-remember)
+(idle-require 'org-export-latex)
+</pre>
+
+
+
+</div>
+
+<div id="outline-container-3_14_1" class="outline-4">
+<h4 id="sec-3_14_1"><span class="section-number-4">3.14.1</span> ANSI Color in Terminals </h4>
+<div class="outline-text-4" id="text-3_14_1">
+
+<p>(ansi-color-for-comint-mode-on)
+</p></div>
+
+</div>
+
+<div id="outline-container-3_14_2" class="outline-4">
+<h4 id="sec-3_14_2"><span class="section-number-4">3.14.2</span> <code>recentf</code> Setup </h4>
+<div class="outline-text-4" id="text-3_14_2">
+
+
+
+
+<pre class="src src-emacs-lisp">(recentf-mode t)
+(setq recentf-auto-cleanup 'never)
+</pre>
+
+
+</div>
+
+</div>
+
+<div id="outline-container-3_14_3" class="outline-4">
+<h4 id="sec-3_14_3"><span class="section-number-4">3.14.3</span> Org-Remember </h4>
+<div class="outline-text-4" id="text-3_14_3">
+
+<p><code>remember-mode</code> is great for capturing tasks and information that you need to remember, and org-mode offers a great set of additional functionality that tie in with remember.
+</p>
+
+
+<pre class="src src-emacs-lisp">(org-remember-insinuate)
+(setq org-directory (expand-file-name <span style="color: #ffa07a;">"jungledisk"</span> (file-name-as-directory <span style="color: #ffa07a;">"~"</span>)))
+(setq org-default-notes-file (expand-file-name <span style="color: #ffa07a;">"sidebrain.org"</span> org-directory))
+</pre>
+
+
+
+
+<pre class="src src-emacs-lisp">(setq org-remember-templates
+      '((<span style="color: #ffa07a;">"Incoming"</span> ?i <span style="color: #ffa07a;">"** %t: %?\n  %i\n  %a"</span> <span style="color: #ffa07a;">"~/jungledisk/sidebrain.org"</span> <span style="color: #ffa07a;">"Incoming"</span>)))
+</pre>
+
+
+
+</div>
+</div>
+
+</div>
+
+<div id="outline-container-3_15" class="outline-3">
+<h3 id="sec-3_15"><span class="section-number-3">3.15</span> Accelerators </h3>
+<div class="outline-text-3" id="text-3_15">
+
+<p>As seen in Steve Yegge's discussion on Effective Emacs, these three settings change some default behavior to speed up common actions.
+Here, we enable the use of C-x C-m to provide the same functionality as M-x provides.  Why? See <a href="http://sites.google.com/site/steveyegge2/effective-emacs">Effective Emacs</a>, Item 2.
+</p>
+
+
+<pre class="src src-emacs-lisp">(global-set-key <span style="color: #ffa07a;">"\C-x\C-m"</span> 'execute-extended-command)
+</pre>
+
+
+
+<p>
+Also from Effective Emacs, this is item 3, which allows us to be able to <code>backward-kill-word</code> without having to reach for the backspace key.
+</p>
+
+
+<pre class="src src-emacs-lisp">(global-set-key <span style="color: #ffa07a;">"\C-w"</span> 'backward-kill-word)
+(global-set-key <span style="color: #ffa07a;">"\C-x\C-k"</span> 'kill-region)
+</pre>
+
+
+
+<p>
+I use several functions very often, so I like to be able to access them very quickly.  These accelerators proide that quick access.
+</p>
+
+
+<pre class="src src-emacs-lisp">(global-set-key <span style="color: #ffa07a;">"\C-xq"</span> 'anything)
+(global-set-key <span style="color: #ffa07a;">"\C-xj"</span> 'join-line)
+(global-set-key <span style="color: #ffa07a;">"\C-xi"</span> 'imenu)
+(global-set-key <span style="color: #ffa07a;">"\C-xf"</span> 'recentf-open-files)
+(global-set-key <span style="color: #ffa07a;">"\C-xc"</span> 'calendar)
+(global-set-key <span style="color: #ffa07a;">"\C-xt"</span> 'eshell)
+(global-set-key <span style="color: #ffa07a;">"\C-xs"</span> 'flyspell-on)
+(global-set-key <span style="color: #ffa07a;">"\C-xc"</span> 'search)
+(global-set-key <span style="color: #ffa07a;">"\C-ca"</span> 'org-agenda)
+(global-set-key <span style="color: #ffa07a;">"\C-cr"</span> 'org-remember)
+</pre>
+
+
+
+</div>
+
+</div>
+
+<div id="outline-container-3_16" class="outline-3">
+<h3 id="sec-3_16"><span class="section-number-3">3.16</span> GUI Settings </h3>
+<div class="outline-text-3" id="text-3_16">
+
+
+
+
+<pre class="src src-emacs-lisp">(tool-bar-mode -1)
+(menu-bar-mode -1)
+(scroll-bar-mode -1)
+</pre>
+
+
+</div>
+
+</div>
+
+<div id="outline-container-3_17" class="outline-3">
+<h3 id="sec-3_17"><span class="section-number-3">3.17</span> End of File Newlines </h3>
+<div class="outline-text-3" id="text-3_17">
+
+<p>There are two aspects to the following customizations.  First, there are a bunch of tools out there that rely on text files ending with a newline to operate correctly.  This setting ensures that a newline is inserted if one does not exist when we save files with Emacs.
+</p>
+
+
+<pre class="src src-emacs-lisp">(setq require-final-newline t)
+</pre>
+
+
+
+<p>
+The second customization disables a mode in which Emacs automatically adds newline characters if you tell it to move to the next line at the end of a buffer.
+</p>
+
+
+<pre class="src src-emacs-lisp">(setq next-line-add-newlines nil)
+</pre>
+
+
+</div>
+
+</div>
+
+<div id="outline-container-3_18" class="outline-3">
+<h3 id="sec-3_18"><span class="section-number-3">3.18</span> Advanced Commands </h3>
+<div class="outline-text-3" id="text-3_18">
+
+<p>There are a variety of commands that Emacs considers "advanced", and will therefore disallow execution of until you affirm (via a prompt) that you actually want to use them.  These commands tell Emacs not to do this for commands I use.
+</p>
+
+
+<pre class="src src-emacs-lisp">(put 'narrow-to-region 'disabled nil)
+(put 'dired-find-alternate-file 'disabled nil)
+(put 'set-goal-column 'disabled nil)
+</pre>
+
+
+</div>
+
+</div>
+
+<div id="outline-container-3_19" class="outline-3">
+<h3 id="sec-3_19"><span class="section-number-3">3.19</span> Color Themes </h3>
+<div class="outline-text-3" id="text-3_19">
+
+<p>Color themes should be incuded in Emacs, but they're not.  These commands simply load the <code>color-theme</code> library and select my current favority color theme.
+</p>
+
+
+<pre class="src src-emacs-lisp">(<span style="color: #00ffff;">require</span> '<span style="color: #7fffd4;">color-theme</span>)
+(color-theme-initialize)
+(color-theme-comidia)
+</pre>
+
+
+</div>
+</div>
+
+</div>
+
+<div id="outline-container-4" class="outline-2">
+<h2 id="sec-4"><span class="section-number-2">4</span> Location-specific Settings </h2>
+<div class="outline-text-2" id="text-4">
+
+<p>Most of the customizations so far carry well across computers.  These, however, point Emacs to outside resources on the system on which the customization resides, so they will need to be changed from platform to platform.  The first sets my default lisp interpreter to be <a href="http://clojure.org">Clojure</a> running on the JVM, and the second sets my default scheme program to be <a href="http://dynamo.iro.umontreal.ca/~gambit/wiki/index.php/Main_Page">Gambit Scheme</a>.
+</p>
+
+
+<pre class="src src-emacs-lisp">(setq-default inferior-lisp-program <span style="color: #ffa07a;">"java -jar /home/rpdillon/apps/clojure/clojure.jar"</span>)
+(setq-default scheme-program-name <span style="color: #ffa07a;">"gsi"</span>)
+</pre>
+
+
+</div>
+</div>
+<div id="postamble">
+<p class="author"> Author: R. P. Dillon
+</p>
+<p class="date"> Date: 2010-07-10 Sat</p>
+<p class="creator">HTML generated by org-mode 6.36trans in emacs 23</p>
+</div>
+</div>
+</body>
+</html>
