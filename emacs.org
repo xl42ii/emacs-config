@@ -1,0 +1,241 @@
+#+TITLE:     Rick Dillon's Emacs Initialization File
+#+AUTHOR:    R. P. Dillon
+#+EMAIL:     rpdillon@etherplex.org
+#+DATE:      2010-07-10 Sat
+#+DESCRIPTION: 
+#+KEYWORDS: 
+#+LANGUAGE:  en
+#+OPTIONS:   H:3 num:t toc:t \n:nil @:t ::t |:t ^:t -:t f:t *:t <:t
+#+OPTIONS:   TeX:t LaTeX:nil skip:nil d:nil todo:t pri:nil tags:not-in-toc
+#+INFOJS_OPT: view:nil toc:nil ltoc:t mouse:underline buttons:0 path:http://orgmode.org/org-info.js
+#+EXPORT_SELECT_TAGS: export
+#+EXPORT_EXCLUDE_TAGS: noexport
+#+LINK_UP:   
+#+LINK_HOME: 
+
+* Custom Functions
+** Platform-independent Path Costruction
+If you have a collection of code that you want to load at startup, you tend to want to modify the =load-path= variable by adding paths of your own.  This can be cumbersome, so this function automatically chains together the path-handling calls to reduce unwieldy calls later.  You simply call it with the path elements you want to construct, in order:
+#+begin_src emacs-lisp :tangle no
+(construct-path "~" "foo" "bar" "baz.txt")
+#+end_src
+You can see more of how it's used in the section on [[#load-path-setup][Load Path Setup]]
+#+begin_src emacs-lisp
+(defun construct-path (&rest path-elements)
+  (defun inner (elements)
+    (print (car elements))
+    (if (eq (cdr elements) nil)
+        (expand-file-name (car elements))
+      (expand-file-name (car elements) (inner (cdr elements)))))
+  (inner (reverse path-elements)))
+#+end_src
+
+** Multi-buffer Search
+Sometimes you want to execute a search across all your open buffers, for example when you have a collection of related files and need to find a refernce to a particular word or phrase (writing) or variable or function (programming).  This is an interactive function that does exactly that.
+#+begin_src emacs-lisp
+(defun search (regexp)
+  "Search all buffers for a regexp."
+  (interactive "sRegexp to search for: ")
+  (multi-occur-in-matching-buffers ".*" regexp))
+#+end_src
+** Flyspell Convenience Function
+When =flyspell-mode= is activated, it doesn't go back and check the entire current buffer for spelling errors.  This is a helper function that turns on flyspell, and goes back and checks the current buffer for spelling errors after doing so.
+#+begin_src emacs-lisp
+(defun flyspell-on ()
+  (interactive)
+  (flyspell-mode 1)
+  (flyspell-buffer))
+#+end_src
+* Load Path Setup
+  :PROPERTIES:
+  :CUSTOM_ID: load-path-setup
+  :END:
+This file makes use of a variety of modes and code that are included under the =src= sub-directory of my =.emacs.d= directory.  This code adds those directories so the rest of the file can be executed smoothly.
+
+#+begin_src emacs-lisp
+  (add-to-list 'load-path (construct-path (file-name-directory (or (buffer-file-name) load-file-name)) "src" "org-mode" "lisp"))
+  (add-to-list 'load-path (construct-path (file-name-directory (or (buffer-file-name) load-file-name)) "src" "org-mode" "contrb" "lisp"))
+  (add-to-list 'load-path (construct-path (file-name-directory (or (buffer-file-name) load-file-name)) "src"))
+#+end_src
+** ELPA Initialization
+ELPA is a package manager for Emacs, and I've loaded a variety of add-on packages through ELPA.  Some of them, like =idle-require= I make use of in this file, so rather than initialize ELPA at the end of the file, I initialize it here, before I set up everything else.
+#+begin_src emacs-lisp
+  (when (load (construct-path "~" ".emacs.d" "elpa" "package.el")) (package-initialize))
+#+end_src
+* Editor Behavior
+** Prevent backups from littering the file system
+By default, Emacs provides fairly robust backup file (files that end with a ~) support, but it leaves those files in the same directories alongside the originals.  This is a customization that gathers all the backups into one spot, so you can find them in one place, and don't have to worry about, e.g. your version control system commiting them by accident.
+#+begin_src emacs-lisp
+(setq backup-directory-alist `(("." . ,(construct-path "~" "emacsbackup"))))
+#+end_src
+
+** Region selection
+The newer versions of Emacs (version 23+), turn on a more common but less powerful mode for text selection called =transient-mark-mode=, which only supplies an active region when text is selected.  This disables that mode in favor of the traditional Emacs behavior.
+#+begin_src emacs-lisp
+(transient-mark-mode 0)
+#+end_src
+
+** Clipboard Behavior
+Emacs maintains a kill-ring independent of the system clipboard.  This can be useful or annoying, and I tend to find it annoying.  This variable combines the two clipboards to they interoperate.
+#+begin_src emacs-lisp
+(setq-default x-select-enable-clipboard t)
+#+end_src
+** Meta Key Modifications
+On many platform/keyboard combinations, keys are not placed conveniently for use in Emacs.  Specifically, the control key is often placed in the lower left corner of the keyboard, which can cause strain.  This is usually rebound to a more convenient location (like the key that most modern keyboards assign to Caps Lock).  The other key that sometimes causes issues is the Meta key, and that is what we address here.  If you're using Emacs on Apple hardware with an Apple keyboard, for example, the "Command" key should be treated as Meta.  This can be effected with:
+#+begin_src emacs-lisp :tangle no
+(setq ns-command-modifier (quote meta))
+#+end_src
+It's worth noting that this variable doesn't even exist on non-Apple platforms, and may or may not be present in alternative builds like Carbon Emacs and Aquamacs, which have their own methods for handling Meta key behavior on Apple platforms.
+
+Similar techniques can be used to assign Meta on Linux, as well:
+#+begin_src emacs-lisp :tangle no
+(setq x-alt-keysym 'meta)
+(setq x-super-keysym 'meta)
+#+end_src
+** Syntax Highlighting
+Emacs doesn't turn on syntax highlighting by default.  This enables it globally (across all buffers).
+#+begin_src emacs-lisp
+(global-font-lock-mode t)
+#+end_src
+
+** Tabs Handling
+This tends to be a relgious issue, but I prefer it when tabs are never used in any of my work.  This tells Emacs to indent with spaces rather than tabs, and set a tab width to be four spaces.
+#+begin_src emacs-lisp
+(setq-default indent-tabs-mode nil)
+(setq-default tab-width 4)
+#+end_src
+
+** Minibuffer Handling
+There are a variety of helper modes that improve the file finding and buffer switching functionality.  I used to use =iswitchb-mode=, which affects only buffer switching, but now use the more comprehensive =ido-mode=, which affects file finding as well.
+#+begin_src emacs-lisp
+(ido-mode t)
+#+end_src
+
+** Modeline Information
+By default, the modeline doesn't contain a lot of information.  These commands add time, CPU load, battery information and column number information for the current point position.
+#+begin_src emacs-lisp
+(display-time-mode t)
+(column-number-mode t)
+(display-battery-mode t)
+#+end_src
+
+** Scrolling
+One of the best changes to Emacs' default behavior, this modifies the scrolling behavior to maintain better continuity.  The default behavior is jumpy and disorienting for me.  Most other editors are better, but only scroll when you hit the bottom or top of the screen.  This modification makes Emacs behave like other editors, but places a 10-line margin at the top of the bottom of the screen so when the screen begins scrolling, you have some context surrounding the point.
+#+begin_src emacs-lisp
+(setq scroll-conservatively 10)
+(setq scroll-margin 7)
+(setq inhibit-startup-screen 1)
+#+end_src
+** Paretheses
+If the cursor is on a parenthesis, bracket or brace, this mode highlights the corresponding parenthesis, bracket or brace.  Very handy in a lot of situations, most notably when programming in lisp.
+#+begin_src emacs-lisp
+(show-paren-mode t)
+#+end_src
+** Line Wrapping
+There are lots of ways to handle line wrapping, but this mode is the best I've found, by far.  It does not insert hard newlines into your document, and behaves correctly /vis a vis/ line numbers.
+#+begin_src emacs-lisp
+(global-visual-line-mode 1)
+#+end_src
+** Emacs Server
+The idiomatic way to use Emacs is to keep one Emacs session running, and open new files in that session.  This can be inconvenient when you're in another application and want to open a file it is pointing to.  Often, such applications support the "Open with..." command, but you'd need a way to tell them to open the file with the currently running Emacs session.  The way to do this is to have your Emacs session run in server mode (which is the piece of code below), and use the command =emacsclient= to open the file; =emacsclient= will take care of handing the file off the current Emacs session.
+#+begin_src emacs-lisp
+(server-start)
+#+end_src
+** Applications
+I don't add on too many non-default applications, but sunrise commander is so good that I couldn't resist.  It is on OFM (orthodox file manager) that is built as a front-end to dired-mode that I find quite useful for its dual-pane functionality.
+*** Sunrise Commander
+#+begin_src emacs-lisp
+(require 'sunrise-commander)
+#+end_src
+** Modes
+There a variety of modes that I'd like to be available during my editing session, but I don't want to sacrifice startup speed to have them, since I won't be using them immediately, usually.  =idle-require= tells emacs to load them when convenient, rather than hold up the initialization process loading them.
+#+begin_src emacs-lisp
+(idle-require 'htmlize)
+(idle-require 'clojure-mode)
+(idle-require 'remember)
+(idle-require 'org-remember)
+(idle-require 'org-export-latex)
+#+end_src
+*** ANSI Color in Terminals
+(ansi-color-for-comint-mode-on)
+*** =recentf= Setup
+#+begin_src emacs-lisp
+(recentf-mode t)
+(setq recentf-auto-cleanup 'never)
+#+end_src
+*** Org-Remember
+=remember-mode= is great for capturing tasks and information that you need to remember, and org-mode offers a great set of additional functionality that tie in with remember.
+#+begin_src emacs-lisp
+(org-remember-insinuate)
+(setq org-directory (expand-file-name "jungledisk" (file-name-as-directory "~")))
+(setq org-default-notes-file (expand-file-name "sidebrain.org" org-directory))
+#+end_src
+
+#+begin_src emacs-lisp
+  (setq org-remember-templates
+        '(("Incoming" ?i "** %t: %?\n  %i\n  %a" "~/jungledisk/sidebrain.org" "Incoming")))
+#+end_src
+
+** Accelerators
+As seen in Steve Yegge's discussion on Effective Emacs, these three settings change some default behavior to speed up common actions.
+Here, we enable the use of C-x C-m to provide the same functionality as M-x provides.  Why? See [[http://sites.google.com/site/steveyegge2/effective-emacs][Effective Emacs]], Item 2.
+#+begin_src emacs-lisp
+(global-set-key "\C-x\C-m" 'execute-extended-command)
+#+end_src
+
+Also from Effective Emacs, this is item 3, which allows us to be able to =backward-kill-word= without having to reach for the backspace key.
+#+begin_src emacs-lisp
+(global-set-key "\C-w" 'backward-kill-word)
+(global-set-key "\C-x\C-k" 'kill-region)
+#+end_src
+
+I use several functions very often, so I like to be able to access them very quickly.  These accelerators proide that quick access.
+#+begin_src emacs-lisp
+(global-set-key "\C-xq" 'anything)
+(global-set-key "\C-xj" 'join-line)
+(global-set-key "\C-xi" 'imenu)
+(global-set-key "\C-xf" 'recentf-open-files)
+(global-set-key "\C-xc" 'calendar)
+(global-set-key "\C-xt" 'eshell)
+(global-set-key "\C-xs" 'flyspell-on)
+(global-set-key "\C-xc" 'search)
+(global-set-key "\C-ca" 'org-agenda)
+(global-set-key "\C-cr" 'org-remember)
+#+end_src
+
+** GUI Settings
+#+begin_src emacs-lisp
+  (tool-bar-mode -1)
+  (menu-bar-mode -1)
+  (scroll-bar-mode -1)
+#+end_src
+** End of File Newlines
+There are two aspects to the following customizations.  First, there are a bunch of tools out there that rely on text files ending with a newline to operate correctly.  This setting ensures that a newline is inserted if one does not exist when we save files with Emacs.
+#+begin_src emacs-lisp
+(setq require-final-newline t)
+#+end_src
+
+The second customization disables a mode in which Emacs automatically adds newline characters if you tell it to move to the next line at the end of a buffer.
+#+begin_src emacs-lisp
+(setq next-line-add-newlines nil)
+#+end_src
+** Advanced Commands
+There are a variety of commands that Emacs considers "advanced", and will therefore disallow execution of until you affirm (via a prompt) that you actually want to use them.  These commands tell Emacs not to do this for commands I use.
+#+begin_src emacs-lisp
+(put 'narrow-to-region 'disabled nil)
+(put 'dired-find-alternate-file 'disabled nil)
+(put 'set-goal-column 'disabled nil)
+#+end_src
+** Color Themes
+Color themes should be incuded in Emacs, but they're not.  These commands simply load the =color-theme= library and select my current favority color theme.
+#+begin_src emacs-lisp
+(require 'color-theme)
+(color-theme-initialize)
+(color-theme-comidia)
+#+end_src
+* Location-specific Settings
+Most of the customizations so far carry well across computers.  These, however, point Emacs to outside resources on the system on which the customization resides, so they will need to be changed from platform to platform.  The first sets my default lisp interpreter to be [[http://clojure.org][Clojure]] running on the JVM, and the second sets my default scheme program to be [[http://dynamo.iro.umontreal.ca/~gambit/wiki/index.php/Main_Page][Gambit Scheme]].
+#+begin_src emacs-lisp
+(setq-default inferior-lisp-program "java -jar /home/rpdillon/apps/clojure/clojure.jar")
+(setq-default scheme-program-name "gsi")
+#+end_src
