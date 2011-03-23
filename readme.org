@@ -1,0 +1,6 @@
+* Emacs Configuration Using Org-Babel
+  This repository contains the setup I use to customize Emacs.  It doesn't include the (rather large) collection of add on packages I use; rather, it is the [[http://orgmode.org/worg/org-contrib/babel/][Org-Babel]] setup I use to store my initialization file as an Org Mode file, and the corresponding =init.el= that bootstraps the system.
+
+GitHub actually uses a Ruby gem called [[http://orgmode.org/worg/org-tutorials/org-ruby.html][Org-Ruby]] to handle org files, and Org-Ruby doesn't handle code blocks nearly as well as the elisp version does. For that reason, if you choose to view the repository on GitHub, I recommend viewing the file in =raw= mode, since the source code will otherwise be somewhat mangled.
+
+Alternatively, you can see a quite-up-to-date HTML export of the org file at [[http://etherplex.org/static/emacs.html][Etherplex]].
