@@ -2,7 +2,7 @@
 #+AUTHOR:    R. P. Dillon
 #+EMAIL:     rpdillon@etherplex.org
 #+DATE:      2010-07-10 Sat
-#+DESCRIPTION: 
+n#+DESCRIPTION: 
 #+KEYWORDS: 
 #+LANGUAGE:  en
 #+OPTIONS:   H:3 num:t toc:t \n:nil @:t ::t |:t ^:t -:t f:t *:t <:t
@@ -31,7 +31,7 @@ You can see more of how it's used in the section on [[#load-path-setup][Load Pat
 #+end_src
 
 ** Multi-buffer Search
-Sometimes you want to execute a search across all your open buffers, for example when you have a collection of related files and need to find a refernce to a particular word or phrase (writing) or variable or function (programming).  This is an interactive function that does exactly that.
+Sometimes you want to execute a search across all your open buffers, for example when you have a collection of related files and need to find a reference to a particular word or phrase (writing) or variable or function (programming).  This is an interactive function that does exactly that.
 #+begin_src emacs-lisp
 (defun search (regexp)
   "Search all buffers for a regexp."
@@ -46,6 +46,56 @@ When =flyspell-mode= is activated, it doesn't go back and check the entire curre
   (flyspell-mode 1)
   (flyspell-buffer))
 #+end_src
+** Org Mode for Presentations
+I like to use org-mode to plan for presentations, and because of its unique ability to handle code with org-babel, it is ideal for giving technical presentations as well.  These functions allow simple presentations to be given by narrowing the buffer to a headline and allowing navigation to adjacent headlines.
+
+#+begin_src emacs-lisp
+  (require 'org)
+        
+  (defun org-presentation-start ()
+    "Start a presentation from the first headline of the file"
+    (interactive)
+    (beginning-of-buffer)
+    (outline-next-visible-heading 1)
+    (org-narrow-to-subtree)
+    (org-show-subtree))
+  
+  (defun org-presentation-adjacent (arg)
+    "An arg of 1 moves to the next heading, an arg of negative 1
+  moves to the previous heading."
+    (interactive)
+    (beginning-of-buffer)
+    (widen)
+    (outline-next-visible-heading arg)
+    (org-narrow-to-subtree)
+    (org-show-subtree))
+  
+  (define-key org-mode-map (kbd "C-c s") '(lambda () (interactive) (org-presentation-start)))
+  (define-key org-mode-map (kbd "C-c n") '(lambda () (interactive) (org-presentation-adjacent 1)))
+  (define-key org-mode-map (kbd "C-c p") '(lambda () (interactive) (org-presentation-adjacent -1)))  
+#+end_src
+** Cyberpunk Cursor
+From [[http://www.emacswiki.org/emacs/Zarza][Zarza's]] page:
+
+#+begin_src emacs-lisp
+(defvar blink-cursor-colors (list  "#92c48f" "#6785c5" "#be369c" "#d9ca65")
+  "On each blink the cursor will cycle to the next color in this list.")
+
+(setq blink-cursor-count 0)
+(defun blink-cursor-timer-function ()
+  "Cyberpunk variant of timer `blink-cursor-timer'. OVERWRITES original version in `frame.el'.
+
+This one changes the cursor color on each blink. Define colors in `blink-cursor-colors'."
+  (when (not (internal-show-cursor-p))
+    (when (>= blink-cursor-count (length blink-cursor-colors))
+      (setq blink-cursor-count 0))
+    (set-cursor-color (nth blink-cursor-count blink-cursor-colors))
+    (setq blink-cursor-count (+ 1 blink-cursor-count))
+    )
+  (internal-show-cursor nil (not (internal-show-cursor-p)))
+  )
+#+end_src
+
 * Load Path Setup
   :PROPERTIES:
   :CUSTOM_ID: load-path-setup
@@ -54,7 +104,7 @@ This file makes use of a variety of modes and code that are included under the =
 
 #+begin_src emacs-lisp
   (add-to-list 'load-path (construct-path (file-name-directory (or (buffer-file-name) load-file-name)) "src" "org-mode" "lisp"))
-  (add-to-list 'load-path (construct-path (file-name-directory (or (buffer-file-name) load-file-name)) "src" "org-mode" "contrb" "lisp"))
+  (add-to-list 'load-path (construct-path (file-name-directory (or (buffer-file-name) load-file-name)) "src" "org-mode" "contrib" "lisp"))
   (add-to-list 'load-path (construct-path (file-name-directory (or (buffer-file-name) load-file-name)) "src"))
 #+end_src
 ** ELPA Initialization
@@ -92,12 +142,11 @@ Similar techniques can be used to assign Meta on Linux, as well:
 (setq x-alt-keysym 'meta)
 (setq x-super-keysym 'meta)
 #+end_src
-** Syntax Highlighting
+** Syntax Highlighting (font locking)
 Emacs doesn't turn on syntax highlighting by default.  This enables it globally (across all buffers).
 #+begin_src emacs-lisp
 (global-font-lock-mode t)
 #+end_src
-
 ** Tabs Handling
 This tends to be a relgious issue, but I prefer it when tabs are never used in any of my work.  This tells Emacs to indent with spaces rather than tabs, and set a tab width to be four spaces.
 #+begin_src emacs-lisp
@@ -147,14 +196,18 @@ I don't add on too many non-default applications, but sunrise commander is so go
 #+begin_src emacs-lisp
 (require 'sunrise-commander)
 #+end_src
+*** todotxt.el
+#+begin_src emacs-lisp
+(require 'todotxt)
+#+end_src
 ** Modes
 There a variety of modes that I'd like to be available during my editing session, but I don't want to sacrifice startup speed to have them, since I won't be using them immediately, usually.  =idle-require= tells emacs to load them when convenient, rather than hold up the initialization process loading them.
 #+begin_src emacs-lisp
-(idle-require 'htmlize)
-(idle-require 'clojure-mode)
-(idle-require 'remember)
-(idle-require 'org-remember)
-(idle-require 'org-export-latex)
+  ;(idle-require 'htmlize)
+  ;(idle-require 'clojure-mode)
+  ;(idle-require 'remember)
+  ;(idle-require 'org-remember)
+  ;(idle-require 'org-export-latex)
 #+end_src
 *** ANSI Color in Terminals
 (ansi-color-for-comint-mode-on)
@@ -164,27 +217,44 @@ There a variety of modes that I'd like to be available during my editing session
 (setq recentf-auto-cleanup 'never)
 #+end_src
 *** Org-Remember
-=remember-mode= is great for capturing tasks and information that you need to remember, and org-mode offers a great set of additional functionality that tie in with remember.
+=remember-mode= is great for capturing tasks and information that you need to remember, and org-mode offers a great set of additional functionality that tie in with remember.  This simply sets up a capture destination under the "Incoming" bullet of index.org in my "sidebrain" directory.
 #+begin_src emacs-lisp
 (org-remember-insinuate)
-(setq org-directory (expand-file-name "jungledisk" (file-name-as-directory "~")))
-(setq org-default-notes-file (expand-file-name "sidebrain.org" org-directory))
+(setq org-directory (construct-path (file-name-as-directory "~") "Dropbox" "memex"))
+(setq org-default-notes-file (construct-path  org-directory "incoming.org"))
 #+end_src
 
 #+begin_src emacs-lisp
   (setq org-remember-templates
-        '(("Incoming" ?i "** %t: %?\n  %i\n  %a" "~/jungledisk/sidebrain.org" "Incoming")))
+        '(("Incoming" ?i "** %t: %?\n  %i\n  %a" (construct-path org-directory "incoming.org") "Uncategorized")))
+#+end_src
+** Org-Babel Setup
+Org babel is an insanely powerful add-on for org-mode that allow code to be integrated into documents.  This sets up what languages can be executed with babel.
+
+#+begin_src emacs-lisp
+  (org-babel-do-load-languages
+   'org-babel-load-languages
+   '((R . t)
+     (scheme . t)
+     ))
 #+end_src
 
 ** Accelerators
+  :PROPERTIES:
+  :ARCHIVE_TIME: 2010-10-06 Wed 18:35
+  :ARCHIVE_FILE: ~/.emacs.d/emacs.org
+  :ARCHIVE_OLPATH: Editor Behavior
+  :ARCHIVE_CATEGORY: emacs
+  :END:
 As seen in Steve Yegge's discussion on Effective Emacs, these three settings change some default behavior to speed up common actions.
 Here, we enable the use of C-x C-m to provide the same functionality as M-x provides.  Why? See [[http://sites.google.com/site/steveyegge2/effective-emacs][Effective Emacs]], Item 2.
 #+begin_src emacs-lisp
 (global-set-key "\C-x\C-m" 'execute-extended-command)
 #+end_src
 
-Also from Effective Emacs, this is item 3, which allows us to be able to =backward-kill-word= without having to reach for the backspace key.
-#+begin_src emacs-lisp
+Also from Effective Emacs, this is item 3, which allows us to be able to =backward-kill-word= without having to reach for the backspace key.  I'm no longer tangling this section so I can have access to the default macro handling functions.
+
+#+begin_src emacs-lisp :tangle no
 (global-set-key "\C-w" 'backward-kill-word)
 (global-set-key "\C-x\C-k" 'kill-region)
 #+end_src
@@ -192,17 +262,20 @@ Also from Effective Emacs, this is item 3, which allows us to be able to =backwa
 I use several functions very often, so I like to be able to access them very quickly.  These accelerators proide that quick access.
 #+begin_src emacs-lisp
 (global-set-key "\C-xq" 'anything)
-(global-set-key "\C-xj" 'join-line)
 (global-set-key "\C-xi" 'imenu)
 (global-set-key "\C-xf" 'recentf-open-files)
 (global-set-key "\C-xc" 'calendar)
-(global-set-key "\C-xt" 'eshell)
 (global-set-key "\C-xs" 'flyspell-on)
+(global-set-key (kbd "C-x t") 'todotxt)
 (global-set-key "\C-xc" 'search)
 (global-set-key "\C-ca" 'org-agenda)
 (global-set-key "\C-cr" 'org-remember)
 #+end_src
 
+I have some custom functions I defined earlier that are useful to have easy access to.
+#+begin_src emacs-lisp
+  (global-set-key "\C-xj" 'org-presentation-start)
+#+end_src
 ** GUI Settings
 #+begin_src emacs-lisp
   (tool-bar-mode -1)
@@ -231,11 +304,25 @@ Color themes should be incuded in Emacs, but they're not.  These commands simply
 #+begin_src emacs-lisp
 (require 'color-theme)
 (color-theme-initialize)
-(color-theme-comidia)
+(color-theme-hober)
 #+end_src
+** Browser Configuration
+Sets up the default browser that Emacs uses to display HTML and visit links.
+#+begin_src emacs-lisp
+(setq browse-url-browser-function (quote browse-url-generic))
+(setq browse-url-generic-program "firefox")
+#+end_src
+** Screencast
+Loads a custom screencasting mode I use to do the Hack Emacs series of
+videos.
+#+begin_src emacs-lisp
+(require 'screencast)
+#+end_src
+
 * Location-specific Settings
 Most of the customizations so far carry well across computers.  These, however, point Emacs to outside resources on the system on which the customization resides, so they will need to be changed from platform to platform.  The first sets my default lisp interpreter to be [[http://clojure.org][Clojure]] running on the JVM, and the second sets my default scheme program to be [[http://dynamo.iro.umontreal.ca/~gambit/wiki/index.php/Main_Page][Gambit Scheme]].
 #+begin_src emacs-lisp
 (setq-default inferior-lisp-program "java -jar /home/rpdillon/apps/clojure/clojure.jar")
-(setq-default scheme-program-name "gsi")
+(setq-default scheme-program-name "/home/rpdillon/apps/gambc-v4_6_0/gsi/gsi -:d")
+(setq scheme-program-name "/home/rpdillon/apps/gambc-v4_6_0/gsi/gsi -:d")
 #+end_src
